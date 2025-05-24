@@ -29,12 +29,24 @@ func TestGetURLsFromHTML(t *testing.T) {
 	_, err := getURLsFromHTML(htmlBody, wrongRawURL)
 	assert.Error(t, err)
 
-	// Malformed html body passed
+	// Malformed html body passed still no error should be returned
 	_, err = getURLsFromHTML(malformedHtml, inputUrl)
 	assert.NoError(t, err)
 
+	// get the valid links out
 	expected := []string{"https://vikuuu.github.io/path/one", "https://other.com/path/one"}
 	got, err := getURLsFromHTML(htmlBody, inputUrl)
 	assert.NoError(t, err)
 	assert.Equal(t, expected, got)
+
+	// malformed url in anchor tag
+	htmlBody = `<html>
+	<body>
+		<a href="://other.com/path/one">
+			<span>some other page</span>
+		</a>
+	</body>
+</html>`
+	got, err = getURLsFromHTML(htmlBody, inputUrl)
+	assert.Zero(t, len(got))
 }
